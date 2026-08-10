@@ -2,6 +2,60 @@ const prisma = require("../config/prisma");
 const { getShipmentDashboardStatistics } = require("../services/shipmentService");
 
 // GET /dashboard/statistics
+
+/**
+ * integrated with core service to fetch the ship statistics from the core service.
+ * 
+ * 
+ * 
+ * const totalShips = await prisma.ship.count();
+
+const shipsActive = await prisma.ship.count({
+  where: {
+    availabilityState: "ACTIVE",
+  },
+});
+
+const shipsAtSea = await prisma.ship.count({
+  where: {
+    availabilityState: "AT_SEA",
+  },
+});
+
+const shipsDocked = await prisma.ship.count({
+  where: {
+    availabilityState: "DOCKED",
+  },
+});
+
+const shipsInMaintenance = await prisma.ship.count({
+  where: {
+    availabilityState: "MAINTENANCE",
+  },
+});
+
+const shipsByState = await prisma.ship.groupBy({
+  by: ["availabilityState"],
+  _count: {
+    availabilityState: true,
+  },
+});
+
+const recentShips = await prisma.ship.findMany({
+  orderBy: {
+    id: "desc",
+  },
+  take: 5,
+  select: {
+    id: true,
+    name: true,
+    availabilityState: true,
+    imoNumber: true,
+    flag: true,
+  },
+});
+ */
+
 async function getStatistics(req, res) {
   try {
     const [

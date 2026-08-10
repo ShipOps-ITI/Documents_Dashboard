@@ -1,0 +1,64 @@
+version: "3.9"
+services:
+  postgres:
+    image: postgres:16
+    container_name: shipment-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: shipment_db
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+volumes:
+  postgres_data:
+
+
+# services:
+#   postgres:
+#     image: postgres:16
+#     container_name: documents-postgres
+#     restart: unless-stopped
+
+#     environment:
+#       POSTGRES_USER: postgres
+#       POSTGRES_PASSWORD: password
+#       POSTGRES_DB: shipment_db
+
+#     ports:
+#       - "5433:5432"
+
+#     volumes:
+#       - postgres_data:/var/lib/postgresql/data
+
+#     healthcheck:
+#       test: ["CMD-SHELL", "pg_isready -U postgres -d shipment_db"]
+#       interval: 10s
+#       timeout: 5s
+#       retries: 5
+
+#   documents-service:
+#     build:
+#       context: .
+#       dockerfile: Dockerfile
+
+#     container_name: documents-service
+
+#     restart: unless-stopped
+
+#     env_file:
+#       - .env
+
+#     ports:
+#       - "5000:5000"
+
+#     depends_on:
+#       postgres:
+#         condition: service_healthy
+
+# volumes:
+#   postgres_data:
+
+

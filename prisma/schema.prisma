@@ -1,0 +1,39 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model documents {
+  id            Int       @id @default(autoincrement())
+  shipment_id   Int?
+  filename      String    @db.VarChar(255)
+  original_name String    @db.VarChar(255)
+  type          String    @db.VarChar(50)
+  upload_date   DateTime? @default(now()) @db.Timestamp(6)
+  uploaded_by   Int?
+  users         users?    @relation(fields: [uploaded_by], references: [id], onUpdate: NoAction)
+}
+
+model ships {
+  id          Int       @id @default(autoincrement())
+  name        String    @db.VarChar(150)
+  imo         String?   @db.VarChar(50)
+  captain     String?   @db.VarChar(150)
+  status      String    @default("In Transit") @db.VarChar(50)
+  location    String?   @db.VarChar(150)
+  destination String?   @db.VarChar(150)
+  eta         DateTime? @db.Timestamp(6)
+}
+
+model users {
+  id        Int         @id @default(autoincrement())
+  name      String      @db.VarChar(100)
+  email     String      @unique @db.VarChar(150)
+  password  String      @db.VarChar(255)
+  role      String      @default("Viewer") @db.VarChar(50)
+  documents documents[]
+}

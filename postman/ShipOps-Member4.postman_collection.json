@@ -1,0 +1,86 @@
+{
+  "info": {
+    "name": "ShipOps - Member 4 (Documents & Dashboard)",
+    "description": "Import this into Postman to test the Documents and Dashboard endpoints without needing the frontend built yet.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://localhost:5000" },
+    { "key": "document_id", "value": "1" }
+  ],
+  "item": [
+    {
+      "name": "Health Check",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/health"
+      }
+    },
+    {
+      "name": "Upload Document",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/documents/upload",
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            { "key": "file", "type": "file", "src": [] },
+            { "key": "shipment_id", "value": "1", "type": "text" },
+            { "key": "type", "value": "Invoice", "type": "text" }
+          ]
+        }
+      }
+    },
+    {
+      "name": "List Documents",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{base_url}}/documents",
+          "host": ["{{base_url}}"],
+          "path": ["documents"]
+        }
+      }
+    },
+    {
+      "name": "List Documents (filtered by shipment_id)",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{base_url}}/documents?shipment_id=1",
+          "host": ["{{base_url}}"],
+          "path": ["documents"],
+          "query": [{ "key": "shipment_id", "value": "1" }]
+        }
+      }
+    },
+    {
+      "name": "Get Document By Id",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/documents/{{document_id}}"
+      }
+    },
+    {
+      "name": "Download Document",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/documents/{{document_id}}/download"
+      }
+    },
+    {
+      "name": "Delete Document",
+      "request": {
+        "method": "DELETE",
+        "url": "{{base_url}}/documents/{{document_id}}"
+      }
+    },
+    {
+      "name": "Dashboard Statistics",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/dashboard/statistics"
+      }
+    }
+  ]
+}

@@ -1,9 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const { getStatistics } = require('../controllers/dashboard.controller');
+const authenticate = require('../middleware/authenticate');
 
-// Normal route: /dashboard/statistics (when service mounted at /dashboard)
-router.get('/statistics', getStatistics);
+router.get('/statistics', authenticate, getStatistics);
 
 // Accept requests that have an extra `/dashboard` prefix (e.g. /dashboard/dashboard/statistics)
 router.get('/dashboard/statistics', getStatistics);

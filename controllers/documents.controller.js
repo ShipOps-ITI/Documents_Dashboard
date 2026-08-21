@@ -2,8 +2,13 @@ const fs = require("fs");
 const path = require("path");
 const prisma = require("../config/prisma");
 
-const { shipmentExists } = require("../services/shipmentService");
+const { shipmentExists, getAccessibleShipmentIds } = require("../services/shipmentService");
 const UPLOADS_DIR = path.join(__dirname, "..", "uploads");
+
+async function canAccessDocument(document, req) {
+  if (!document.shipment_id) return req.user.role !== "CUSTOMER";
+  return shipmentExists(document.shipment_id, req.headers.authorization);
+}
 
 // POST /documents/upload
 async function uploadDocument(req, res) {
@@ -15,6 +20,10 @@ async function uploadDocument(req, res) {
     }
 
     const { shipment_id, type } = req.body;
+    if (!shipment_id) {
+      fs.unlinkSync(req.file.path);
+      return res.status(400).json({ error: '"shipment_id" is required.' });
+    }
     if (shipment_id) {
       const exists = await shipmentExists(
         Number(shipment_id),
@@ -46,6 +55,7 @@ async function uploadDocument(req, res) {
         filename: req.file.filename,
         original_name: req.file.originalname,
         type,
+        uploaded_by: req.user.userId,
       },
     });
 
@@ -65,7 +75,13 @@ async function listDocuments(req, res) {
 
     let documents;
 
-    if (shipment_id) {
+    if (req.user.role === "CUSTOMER") {
+      const shipmentIds = await getAccessibleShipmentIds(req.headers.authorization);
+      documents = await prisma.documents.findMany({
+        where: { shipment_id: { in: shipmentIds } },
+        orderBy: { upload_date: "desc" },
+      });
+    } else if (shipment_id) {
       documents = await prisma.documents.findMany({
         where: {
           shipment_id: Number(shipment_id),
@@ -106,6 +122,10 @@ async function getDocumentById(req, res) {
       return res.status(404).json({ error: "Document not found." });
     }
 
+    if (!(await canAccessDocument(document, req))) {
+      return res.status(404).json({ error: "Document not found." });
+    }
+
     return res.json(document);
   } catch (err) {
     console.error("getDocumentById error:", err);
@@ -127,6 +147,10 @@ async function downloadDocument(req, res) {
     });
 
     if (!document) {
+      return res.status(404).json({ error: "Document not found." });
+    }
+
+    if (!(await canAccessDocument(document, req))) {
       return res.status(404).json({ error: "Document not found." });
     }
 

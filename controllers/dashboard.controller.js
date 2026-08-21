@@ -1,51 +1,27 @@
-const prisma = require("../config/prisma");
-const { getShipmentDashboardStatistics } = require("../services/shipmentService");
+const { getShipmentDashboardStatistics, getCoreShipStatistics } = require("../services/shipmentService");
 
 // GET /dashboard/statistics
 async function getStatistics(req, res) {
   try {
-    const [
-      totalShips,
-      shipsInTransit,
-      delayedShips,
-      shipsByStatus,
-      latestShips,
-      shipmentDashboard,
-    ] = await Promise.all([
-      prisma.ships.count(),
-
-      prisma.ships.count({
-        where: {
-          status: "In Transit",
+    // Customers receive only their shipment summary. Operational vessel
+    // statistics are internal to the shipping company.
+    if (req.user.role === "CUSTOMER") {
+      const shipmentDashboard = await getShipmentDashboardStatistics(req.headers.authorization);
+      return res.json({
+        totalShips: 0,
+        shipsInTransit: 0,
+        delayedShips: 0,
+        ...shipmentDashboard,
+        charts: {
+          shipsByStatus: [],
+          shipmentsByStatus: shipmentDashboard.shipmentsByStatus ?? [],
         },
-      }),
+        latestShips: [],
+      });
+    }
 
-      prisma.ships.count({
-        where: {
-          status: "Delayed",
-        },
-      }),
-
-      prisma.ships.groupBy({
-        by: ["status"],
-        _count: {
-          status: true,
-        },
-      }),
-
-      prisma.ships.findMany({
-        orderBy: {
-          id: "desc",
-        },
-        take: 5,
-        select: {
-          id: true,
-          name: true,
-          status: true,
-          eta: true,
-        },
-      }),
-
+    const [shipDashboard, shipmentDashboard] = await Promise.all([
+      getCoreShipStatistics(req.headers.authorization),
       getShipmentDashboardStatistics(req.headers.authorization),
     ]);
 
@@ -59,18 +35,15 @@ async function getStatistics(req, res) {
     } = shipmentDashboard;
 
     return res.json({
-      totalShips,
-      shipsInTransit,
-      delayedShips,
+      totalShips: shipDashboard.totalShips,
+      shipsInTransit: shipDashboard.shipsAtSea,
+      delayedShips: shipDashboard.shipsInMaintenance,
       totalShipments,
       deliveredShipments,
       pendingShipments,
 
       charts: {
-        shipsByStatus: shipsByStatus.map((item) => ({
-          status: item.status,
-          count: item._count.status,
-        })),
+        shipsByStatus: shipDashboard.shipsByStatus,
 
         shipmentsByStatus: shipmentsByStatus.map((item) => ({
           status: item.status,
@@ -78,7 +51,11 @@ async function getStatistics(req, res) {
         })),
       },
 
-      latestShips,
+      latestShips: shipDashboard.latestShips.map((ship) => ({
+        ...ship,
+        status: ship.availabilityState,
+        eta: ship.lastAisUpdateAt,
+      })),
       latestShipments,
     });
   } catch (err) {

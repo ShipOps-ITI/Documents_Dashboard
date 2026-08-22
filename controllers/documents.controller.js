@@ -75,7 +75,7 @@ async function listDocuments(req, res) {
 
     let documents;
 
-    if (req.user.role === "CUSTOMER") {
+    if (req.user.role !== "ADMIN") {
       const shipmentIds = await getAccessibleShipmentIds(req.headers.authorization);
       documents = await prisma.documents.findMany({
         where: { shipment_id: { in: shipmentIds } },
@@ -184,6 +184,10 @@ async function deleteDocument(req, res) {
     });
 
     if (!document) {
+      return res.status(404).json({ error: "Document not found." });
+    }
+
+    if (!(await canAccessDocument(document, req))) {
       return res.status(404).json({ error: "Document not found." });
     }
 

@@ -15,10 +15,10 @@ const {
 // Member 1's JWT auth is ready, e.g.:
 // router.get('/', authMiddleware, listDocuments);
 
-router.post('/upload', authenticate, authorize('ADMIN', 'FLEET_MANAGER'), upload.single('file'), uploadDocument);
+router.post('/upload', authenticate, authorize('ADMIN', 'COMPANY_ADMIN', 'FLEET_MANAGER'), upload.single('file'), uploadDocument);
 router.get('/', authenticate, listDocuments);
 router.get('/:id', authenticate, getDocumentById);
 router.get('/:id/download', authenticate, downloadDocument);
-router.delete('/:id', authenticate, authorize('ADMIN', 'FLEET_MANAGER'), deleteDocument);
+router.delete('/:id', authenticate, authorize('ADMIN', 'COMPANY_ADMIN', 'FLEET_MANAGER'), deleteDocument);
 
 module.exports = router;

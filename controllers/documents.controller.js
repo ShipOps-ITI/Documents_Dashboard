@@ -154,7 +154,7 @@ async function downloadDocument(req, res) {
       return res.status(404).json({ error: "Document not found." });
     }
 
-    const filePath = path.join(UPLOADS_DIR, document.filename);
+    const filePath = path.join(UPLOADS_DIR, path.basename(document.filename));
 
     if (!fs.existsSync(filePath)) {
       return res.status(404).json({
@@ -191,7 +191,7 @@ async function deleteDocument(req, res) {
       return res.status(404).json({ error: "Document not found." });
     }
 
-    const filePath = path.join(UPLOADS_DIR, document.filename);
+    const filePath = path.join(UPLOADS_DIR, path.basename(document.filename));
 
     if (fs.existsSync(filePath)) {
       fs.unlinkSync(filePath);

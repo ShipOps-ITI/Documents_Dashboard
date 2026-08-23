@@ -6,7 +6,9 @@ const { shipmentExists, getAccessibleShipmentIds } = require("../services/shipme
 const UPLOADS_DIR = path.join(__dirname, "..", "uploads");
 
 async function canAccessDocument(document, req) {
-  if (!document.shipment_id) return req.user.role !== "CUSTOMER";
+  // A document belongs to the company through its shipment. Legacy documents
+  // without a shipment are deliberately not exposed to company users.
+  if (!document.shipment_id) return false;
   return shipmentExists(document.shipment_id, req.headers.authorization);
 }
 

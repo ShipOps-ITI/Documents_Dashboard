@@ -16,9 +16,9 @@ const {
 // router.get('/', authMiddleware, listDocuments);
 
 router.post('/upload', authenticate, authorize('ADMIN', 'COMPANY_ADMIN', 'FLEET_MANAGER'), upload.single('file'), uploadDocument);
-router.get('/', authenticate, listDocuments);
-router.get('/:id', authenticate, getDocumentById);
-router.get('/:id/download', authenticate, downloadDocument);
+router.get('/', authenticate, authorize('ADMIN', 'COMPANY_ADMIN', 'FLEET_MANAGER'), listDocuments);
+router.get('/:id', authenticate, authorize('ADMIN', 'COMPANY_ADMIN', 'FLEET_MANAGER'), getDocumentById);
+router.get('/:id/download', authenticate, authorize('ADMIN', 'COMPANY_ADMIN', 'FLEET_MANAGER'), downloadDocument);
 router.delete('/:id', authenticate, authorize('ADMIN', 'COMPANY_ADMIN', 'FLEET_MANAGER'), deleteDocument);
 
 module.exports = router;

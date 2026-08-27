@@ -8,11 +8,19 @@ datasource db {
 }
 
 model documents {
-  id            Int       @id @default(autoincrement())
-  shipment_id   Int?
-  filename      String    @db.VarChar(255)
-  original_name String    @db.VarChar(255)
-  type          String    @db.VarChar(50)
-  upload_date   DateTime? @default(now()) @db.Timestamp(6)
-  uploaded_by   Int?
+  id               Int       @id @default(autoincrement())
+  shipment_id      Int?
+  cargo_id         Int?
+  filename         String    @db.VarChar(255)
+  original_name    String    @db.VarChar(255)
+  type             String    @db.VarChar(50)
+  reference_number String?   @db.VarChar(100)
+  expires_at       DateTime? @db.Timestamp(6)
+  status           String    @default("SUBMITTED") @db.VarChar(20)
+  review_note      String?   @db.Text
+  reviewed_by      Int?
+  reviewed_at      DateTime? @db.Timestamp(6)
+  upload_date      DateTime? @default(now()) @db.Timestamp(6)
+  updated_at       DateTime  @updatedAt @db.Timestamp(6)
+  uploaded_by      Int?
 }

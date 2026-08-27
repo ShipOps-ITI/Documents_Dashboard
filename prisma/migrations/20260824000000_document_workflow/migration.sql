@@ -1,0 +1,12 @@
+ALTER TABLE "documents"
+  ADD COLUMN IF NOT EXISTS "cargo_id" INTEGER,
+  ADD COLUMN IF NOT EXISTS "reference_number" VARCHAR(100),
+  ADD COLUMN IF NOT EXISTS "expires_at" TIMESTAMP(6),
+  ADD COLUMN IF NOT EXISTS "status" VARCHAR(20) NOT NULL DEFAULT 'SUBMITTED',
+  ADD COLUMN IF NOT EXISTS "review_note" TEXT,
+  ADD COLUMN IF NOT EXISTS "reviewed_by" INTEGER,
+  ADD COLUMN IF NOT EXISTS "reviewed_at" TIMESTAMP(6),
+  ADD COLUMN IF NOT EXISTS "updated_at" TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP;
+
+CREATE INDEX IF NOT EXISTS "documents_shipment_id_idx" ON "documents"("shipment_id");
+CREATE INDEX IF NOT EXISTS "documents_cargo_id_idx" ON "documents"("cargo_id");
